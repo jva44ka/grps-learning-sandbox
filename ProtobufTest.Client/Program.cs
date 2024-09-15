@@ -1,17 +1,37 @@
-﻿// Создайте gRPC канал
-using Grpc.Net.Client;
+﻿using Grpc.Net.Client;
 using ProtobufTest.Server.GrpcService;
 
-using var channel = GrpcChannel.ForAddress("https://localhost:7110");
+Console.WriteLine("Введите 2 числа через запятую");
 
-// Создайте клиента
-var client = new Greeter.GreeterClient(channel);
+while (true)
+{
+    var consoleLine = Console.ReadLine();
 
-// Создайте запрос
-var request = new HelloRequest { Name = "Alice" };
+    if (consoleLine is null)
+    {
+        Console.WriteLine("Вы ввели пустую строку");
+        continue;
+    }
 
-// Отправьте запрос и получите ответ
-var reply = await client.SayHelloAsync(request);
+    var consoleSymbols = consoleLine.Split(',');
+    if (consoleSymbols.Length != 2)
+    {
+        Console.WriteLine("Вы ввели не 2 числа");
+        continue;
+    }
 
-// Выведите ответ на консоль
-Console.WriteLine("Greeting: " + reply.Message);
+    // Создание gRPC канала
+    using var channel = GrpcChannel.ForAddress("https://localhost:7110");
+
+    // Создание клиента
+    var client = new Calculator.CalculatorClient(channel);
+
+    // Создайте запрос
+    var request = new CalculateRequest { Number1 = int.Parse(consoleSymbols[0]), Number2 = int.Parse(consoleSymbols[1]) };
+
+    // Запрос
+    var reply = client.GetSum(request);
+
+    // Вывод ответа на консоль
+    Console.WriteLine("Greeting: " + reply.Sum);
+}
